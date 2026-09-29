@@ -1,0 +1,508 @@
+{
+  "summary": {
+    "total": 6,
+    "high": 2,
+    "medium": 1,
+    "low": 0,
+    "filtered": 3
+  },
+  "scored": [
+    {
+      "id": "lead_001_ideal_distributor",
+      "name": "Northwind Outdoor Trading Ltd",
+      "domain": "northwind-outdoor.co.uk",
+      "country": "United Kingdom",
+      "buyerType": "distributor",
+      "score": 98.5,
+      "tier": "high",
+      "filtered": [],
+      "filteredReasons": [],
+      "breakdown": [
+        {
+          "key": "industryFit",
+          "label": "行业匹配度",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "industryMatch=exact"
+        },
+        {
+          "key": "buyerTypeFit",
+          "label": "客户类型匹配",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "buyerType=distributor（符合）"
+        },
+        {
+          "key": "sizeFit",
+          "label": "规模匹配",
+          "weight": 15,
+          "raw": 1,
+          "points": 15,
+          "reason": "employees=45 落在理想区间"
+        },
+        {
+          "key": "importCapability",
+          "label": "进口 / 采购能力",
+          "weight": 15,
+          "raw": 1,
+          "points": 15,
+          "reason": "进口能力=是; 采购信号命中 7 条; 负面信号 0 条"
+        },
+        {
+          "key": "contactability",
+          "label": "可联系性",
+          "weight": 10,
+          "raw": 1,
+          "points": 10,
+          "reason": "企业邮箱(1) + 联系表单(0.7) + 电话(0.6)"
+        },
+        {
+          "key": "digitalMaturity",
+          "label": "线上成熟度",
+          "weight": 10,
+          "raw": 0.85,
+          "points": 8.5,
+          "reason": "websiteQuality=0.85"
+        }
+      ],
+      "reasons": [
+        "行业匹配度: industryMatch=exact → 25分",
+        "客户类型匹配: buyerType=distributor（符合） → 25分",
+        "规模匹配: employees=45 落在理想区间 → 15分",
+        "进口 / 采购能力: 进口能力=是; 采购信号命中 7 条; 负面信号 0 条 → 15分",
+        "可联系性: 企业邮箱(1) + 联系表单(0.7) + 电话(0.6) → 10分",
+        "线上成熟度: websiteQuality=0.85 → 8.5分"
+      ],
+      "riskFlags": [],
+      "audit": {
+        "configVersion": "1.0.0",
+        "icpVersion": "1.0.0",
+        "scoredAt": "2026-09-18T07:58:06.650Z",
+        "engine": "scoring.js/1.0.0"
+      }
+    },
+    {
+      "id": "lead_002_manufacturer_should_filter",
+      "name": "SteelWorks Manufacturing GmbH",
+      "domain": "steelworks.de",
+      "country": "Germany",
+      "buyerType": "manufacturer",
+      "score": 0,
+      "tier": "filtered",
+      "filtered": [
+        {
+          "key": "country_mismatch",
+          "op": "countryNotInIcp",
+          "reason": "国家不在目标市场清单内"
+        },
+        {
+          "key": "buyer_type_rejected",
+          "op": "buyerTypeInRejectList",
+          "reason": "命中 ICP 排除的客户类型（制造商/竞品/平台/零售纯 C 端）"
+        }
+      ],
+      "filteredReasons": [
+        "国家不在目标市场清单内",
+        "命中 ICP 排除的客户类型（制造商/竞品/平台/零售纯 C 端）"
+      ],
+      "breakdown": [
+        {
+          "key": "industryFit",
+          "label": "行业匹配度",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "industryMatch=exact"
+        },
+        {
+          "key": "buyerTypeFit",
+          "label": "客户类型匹配",
+          "weight": 25,
+          "raw": 0,
+          "points": 0,
+          "reason": "buyerType=manufacturer（排除）"
+        },
+        {
+          "key": "sizeFit",
+          "label": "规模匹配",
+          "weight": 15,
+          "raw": 0.6,
+          "points": 9,
+          "reason": "employees=1200 落在可接受区间"
+        },
+        {
+          "key": "importCapability",
+          "label": "进口 / 采购能力",
+          "weight": 15,
+          "raw": 0.2,
+          "points": 3,
+          "reason": "进口能力=否; 采购信号命中 1 条; 负面信号 0 条"
+        },
+        {
+          "key": "contactability",
+          "label": "可联系性",
+          "weight": 10,
+          "raw": 1,
+          "points": 10,
+          "reason": "企业邮箱(1) + 电话(0.6)"
+        },
+        {
+          "key": "digitalMaturity",
+          "label": "线上成熟度",
+          "weight": 10,
+          "raw": 0.7,
+          "points": 7,
+          "reason": "websiteQuality=0.7"
+        }
+      ],
+      "reasons": [
+        "行业匹配度: industryMatch=exact → 25分",
+        "客户类型匹配: buyerType=manufacturer（排除） → 0分",
+        "规模匹配: employees=1200 落在可接受区间 → 9分",
+        "进口 / 采购能力: 进口能力=否; 采购信号命中 1 条; 负面信号 0 条 → 3分",
+        "可联系性: 企业邮箱(1) + 电话(0.6) → 10分",
+        "线上成熟度: websiteQuality=0.7 → 7分"
+      ],
+      "riskFlags": [],
+      "audit": {
+        "configVersion": "1.0.0",
+        "icpVersion": "1.0.0",
+        "scoredAt": "2026-09-18T07:58:06.650Z",
+        "engine": "scoring.js/1.0.0"
+      }
+    },
+    {
+      "id": "lead_003_wrong_country_should_filter",
+      "name": "Sunrise Trading Co",
+      "domain": "sunrisetrading.com",
+      "country": "United States",
+      "buyerType": "wholesaler",
+      "score": 0,
+      "tier": "filtered",
+      "filtered": [
+        {
+          "key": "country_mismatch",
+          "op": "countryNotInIcp",
+          "reason": "国家不在目标市场清单内"
+        }
+      ],
+      "filteredReasons": [
+        "国家不在目标市场清单内"
+      ],
+      "breakdown": [
+        {
+          "key": "industryFit",
+          "label": "行业匹配度",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "industryMatch=exact"
+        },
+        {
+          "key": "buyerTypeFit",
+          "label": "客户类型匹配",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "buyerType=wholesaler（符合）"
+        },
+        {
+          "key": "sizeFit",
+          "label": "规模匹配",
+          "weight": 15,
+          "raw": 1,
+          "points": 15,
+          "reason": "employees=30 落在理想区间"
+        },
+        {
+          "key": "importCapability",
+          "label": "进口 / 采购能力",
+          "weight": 15,
+          "raw": 1,
+          "points": 15,
+          "reason": "进口能力=是; 采购信号命中 3 条; 负面信号 0 条"
+        },
+        {
+          "key": "contactability",
+          "label": "可联系性",
+          "weight": 10,
+          "raw": 1,
+          "points": 10,
+          "reason": "企业邮箱(1) + 电话(0.6)"
+        },
+        {
+          "key": "digitalMaturity",
+          "label": "线上成熟度",
+          "weight": 10,
+          "raw": 0.6,
+          "points": 6,
+          "reason": "websiteQuality=0.6"
+        }
+      ],
+      "reasons": [
+        "行业匹配度: industryMatch=exact → 25分",
+        "客户类型匹配: buyerType=wholesaler（符合） → 25分",
+        "规模匹配: employees=30 落在理想区间 → 15分",
+        "进口 / 采购能力: 进口能力=是; 采购信号命中 3 条; 负面信号 0 条 → 15分",
+        "可联系性: 企业邮箱(1) + 电话(0.6) → 10分",
+        "线上成熟度: websiteQuality=0.6 → 6分"
+      ],
+      "riskFlags": [],
+      "audit": {
+        "configVersion": "1.0.0",
+        "icpVersion": "1.0.0",
+        "scoredAt": "2026-09-18T07:58:06.650Z",
+        "engine": "scoring.js/1.0.0"
+      }
+    },
+    {
+      "id": "lead_004_no_contact_should_filter",
+      "name": "Ghost Supplies Ltd",
+      "domain": "ghostsupplies.co.uk",
+      "country": "United Kingdom",
+      "buyerType": "trade_supplier",
+      "score": 0,
+      "tier": "filtered",
+      "filtered": [
+        {
+          "key": "no_contact_route",
+          "op": "contactabilityZero",
+          "reason": "无任何可用联系方式（邮箱/表单/电话），无法触达"
+        }
+      ],
+      "filteredReasons": [
+        "无任何可用联系方式（邮箱/表单/电话），无法触达"
+      ],
+      "breakdown": [
+        {
+          "key": "industryFit",
+          "label": "行业匹配度",
+          "weight": 25,
+          "raw": 0.85,
+          "points": 21.25,
+          "reason": "industryMatch=adjacent"
+        },
+        {
+          "key": "buyerTypeFit",
+          "label": "客户类型匹配",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "buyerType=trade_supplier（符合）"
+        },
+        {
+          "key": "sizeFit",
+          "label": "规模匹配",
+          "weight": 15,
+          "raw": 1,
+          "points": 15,
+          "reason": "employees=20 落在理想区间"
+        },
+        {
+          "key": "importCapability",
+          "label": "进口 / 采购能力",
+          "weight": 15,
+          "raw": 0.9,
+          "points": 13.5,
+          "reason": "进口能力=是; 采购信号命中 2 条; 负面信号 0 条"
+        },
+        {
+          "key": "contactability",
+          "label": "可联系性",
+          "weight": 10,
+          "raw": 0,
+          "points": 0,
+          "reason": "无任何联系方式"
+        },
+        {
+          "key": "digitalMaturity",
+          "label": "线上成熟度",
+          "weight": 10,
+          "raw": 0.4,
+          "points": 4,
+          "reason": "websiteQuality=0.4"
+        }
+      ],
+      "reasons": [
+        "行业匹配度: industryMatch=adjacent → 21.25分",
+        "客户类型匹配: buyerType=trade_supplier（符合） → 25分",
+        "规模匹配: employees=20 落在理想区间 → 15分",
+        "进口 / 采购能力: 进口能力=是; 采购信号命中 2 条; 负面信号 0 条 → 13.5分",
+        "可联系性: 无任何联系方式 → 0分",
+        "线上成熟度: websiteQuality=0.4 → 4分"
+      ],
+      "riskFlags": [],
+      "audit": {
+        "configVersion": "1.0.0",
+        "icpVersion": "1.0.0",
+        "scoredAt": "2026-09-18T07:58:06.651Z",
+        "engine": "scoring.js/1.0.0"
+      }
+    },
+    {
+      "id": "lead_005_medium_free_email",
+      "name": "Greenfield Garden Supplies",
+      "domain": "greenfieldgarden.co.uk",
+      "country": "United Kingdom",
+      "buyerType": "retailer_with_trade",
+      "score": 76.25,
+      "tier": "high",
+      "filtered": [],
+      "filteredReasons": [],
+      "breakdown": [
+        {
+          "key": "industryFit",
+          "label": "行业匹配度",
+          "weight": 25,
+          "raw": 0.85,
+          "points": 21.25,
+          "reason": "industryMatch=adjacent"
+        },
+        {
+          "key": "buyerTypeFit",
+          "label": "客户类型匹配",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "buyerType=retailer_with_trade（符合）"
+        },
+        {
+          "key": "sizeFit",
+          "label": "规模匹配",
+          "weight": 15,
+          "raw": 1,
+          "points": 15,
+          "reason": "employees=12 落在理想区间"
+        },
+        {
+          "key": "importCapability",
+          "label": "进口 / 采购能力",
+          "weight": 15,
+          "raw": 0.2,
+          "points": 3,
+          "reason": "进口能力=否; 采购信号命中 1 条; 负面信号 0 条"
+        },
+        {
+          "key": "contactability",
+          "label": "可联系性",
+          "weight": 10,
+          "raw": 0.7,
+          "points": 7,
+          "reason": "免费邮箱(0.3) + 联系表单(0.7)"
+        },
+        {
+          "key": "digitalMaturity",
+          "label": "线上成熟度",
+          "weight": 10,
+          "raw": 0.5,
+          "points": 5,
+          "reason": "websiteQuality=0.5"
+        }
+      ],
+      "reasons": [
+        "行业匹配度: industryMatch=adjacent → 21.25分",
+        "客户类型匹配: buyerType=retailer_with_trade（符合） → 25分",
+        "规模匹配: employees=12 落在理想区间 → 15分",
+        "进口 / 采购能力: 进口能力=否; 采购信号命中 1 条; 负面信号 0 条 → 3分",
+        "可联系性: 免费邮箱(0.3) + 联系表单(0.7) → 7分",
+        "线上成熟度: websiteQuality=0.5 → 5分"
+      ],
+      "riskFlags": [
+        {
+          "key": "free_email_only",
+          "reason": "仅有免费邮箱，真实性待验证"
+        }
+      ],
+      "audit": {
+        "configVersion": "1.0.0",
+        "icpVersion": "1.0.0",
+        "scoredAt": "2026-09-18T07:58:06.651Z",
+        "engine": "scoring.js/1.0.0"
+      }
+    },
+    {
+      "id": "lead_006_unknown_size_risk_flag",
+      "name": "Coastal Imports Ltd",
+      "domain": "coastalimports.co.uk",
+      "country": "United Kingdom",
+      "buyerType": "importer",
+      "score": 72.5,
+      "tier": "medium",
+      "filtered": [],
+      "filteredReasons": [],
+      "breakdown": [
+        {
+          "key": "industryFit",
+          "label": "行业匹配度",
+          "weight": 25,
+          "raw": 0.5,
+          "points": 12.5,
+          "reason": "industryMatch=broad"
+        },
+        {
+          "key": "buyerTypeFit",
+          "label": "客户类型匹配",
+          "weight": 25,
+          "raw": 1,
+          "points": 25,
+          "reason": "buyerType=importer（符合）"
+        },
+        {
+          "key": "sizeFit",
+          "label": "规模匹配",
+          "weight": 15,
+          "raw": 0.4,
+          "points": 6,
+          "reason": "revenueUsd 未知，取保守值"
+        },
+        {
+          "key": "importCapability",
+          "label": "进口 / 采购能力",
+          "weight": 15,
+          "raw": 0.9,
+          "points": 13.5,
+          "reason": "进口能力=是; 采购信号命中 2 条; 负面信号 0 条"
+        },
+        {
+          "key": "contactability",
+          "label": "可联系性",
+          "weight": 10,
+          "raw": 1,
+          "points": 10,
+          "reason": "企业邮箱(1) + 电话(0.6)"
+        },
+        {
+          "key": "digitalMaturity",
+          "label": "线上成熟度",
+          "weight": 10,
+          "raw": 0.55,
+          "points": 5.5,
+          "reason": "websiteQuality=0.55"
+        }
+      ],
+      "reasons": [
+        "行业匹配度: industryMatch=broad → 12.5分",
+        "客户类型匹配: buyerType=importer（符合） → 25分",
+        "规模匹配: revenueUsd 未知，取保守值 → 6分",
+        "进口 / 采购能力: 进口能力=是; 采购信号命中 2 条; 负面信号 0 条 → 13.5分",
+        "可联系性: 企业邮箱(1) + 电话(0.6) → 10分",
+        "线上成熟度: websiteQuality=0.55 → 5.5分"
+      ],
+      "riskFlags": [
+        {
+          "key": "size_unknown",
+          "reason": "规模数据缺失，建议人工核实"
+        }
+      ],
+      "audit": {
+        "configVersion": "1.0.0",
+        "icpVersion": "1.0.0",
+        "scoredAt": "2026-09-18T07:58:06.651Z",
+        "engine": "scoring.js/1.0.0"
+      }
+    }
+  ],
+  "generatedAt": "2026-09-18T07:58:06.651Z"
+}

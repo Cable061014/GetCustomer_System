@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "name": "通用 B2B 经销商 / 批发商 ICP",
+    "status": "draft",
+    "updatedAt": "2026-09-18",
+    "owner": "growth-team",
+    "notes": "市场未确定前的通用画像。确定目标市场后复制为 icp.<market>.json 并锁定版本号，禁止直接改本文件。"
+  },
+  "target": {
+    "countries": ["United Kingdom"],
+    "countryMatchMode": "strict",
+    "industries": [],
+    "buyerTypes": {
+      "accept": ["distributor", "wholesaler", "importer", "trade_supplier", "retailer_with_trade"],
+      "partial": ["retailer", "brand_owner"],
+      "reject": ["manufacturer", "competitor", "marketplace", "dropshipper", "consumer", "unknown_large_platform"]
+    },
+    "companySize": {
+      "employees": {
+        "idealMin": 10,
+        "idealMax": 500,
+        "acceptableMin": 5,
+        "acceptableMax": 2000
+      },
+      "revenueUsd": {
+        "idealMin": 1000000,
+        "idealMax": 50000000,
+        "acceptableMin": 300000,
+        "acceptableMax": 200000000
+      }
+    }
+  },
+  "buyingSignals": {
+    "positive": [
+      "importer",
+      "import",
+      "distributor",
+      "distribution",
+      "wholesale",
+      "trade account",
+      "trade price",
+      "trade customer",
+      "become a stockist",
+      "stockist",
+      "minimum order",
+      "moq",
+      "container",
+      "fob",
+      "supplier enquiry",
+      "we source",
+      "sourcing"
+    ],
+    "negative": [
+      "retail only",
+      "consumer only",
+      "dropship",
+      "dropshipping",
+      "no trade accounts"
+    ]
+  },
+  "contactRequirements": {
+    "requiredAny": ["email", "contactForm", "phone"],
+    "preferBusinessEmail": true,
+    "blockFreeEmailDomains": ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com"]
+  },
+  "outreach": {
+    "enabled": false,
+    "channels": ["email"],
+    "dailySendCap": 50,
+    "requireHumanApproval": true,
+    "region": "UK"
+  }
+}

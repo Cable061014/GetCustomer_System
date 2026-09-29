@@ -1,0 +1,107 @@
+{
+  "generatedAt": "2026-09-18T16:54:59.076Z",
+  "summary": {
+    "total": 6,
+    "high": 2,
+    "medium": 0,
+    "unsubscribe": 1,
+    "other": 3
+  },
+  "highPriority": [
+    {
+      "companyName": "The Router Store",
+      "replyText": "Hi, thanks for reaching out. Please send me your catalogue and wholesale pricing for 4G routers. We buy around 200 units per month.",
+      "intent": "high",
+      "confidence": 0.97,
+      "signals": [
+        "索要目录",
+        "询问批发价格",
+        "主动提供采购量（200 units/month）",
+        "明确采购意向"
+      ],
+      "objections": [],
+      "nextAction": "human_takeover",
+      "suggestedReply": "Hi,\n\nThanks for getting back to us. Happy to share our catalogue and wholesale pricing for our 4G router line.\n\nTo put together the right quote, could you confirm a few details:\n- Which models or specs are you targeting (band support, port count, Wi-Fi standard)?\n- Target monthly volume per model (you mentioned ~200 units/month total)\n- Destination country and any certification requirements (CE/FCC etc.)\n- Preferred payment terms\n\nWe are a manufacturer with stock available, so lead times are typically short. I'll send the catalogue and price list right after your confirmation.\n\nBest regards",
+      "reasoning": "客户明确索要目录与批发价并给出月采购量，属高意向，需人工接管报价与条款。"
+    },
+    {
+      "companyName": "TP-Link Wholesale UK",
+      "replyText": "Sounds interesting. What's your MOQ and do you have CE certification? Also lead time please.",
+      "intent": "high",
+      "confidence": 0.97,
+      "signals": [
+        "询问MOQ",
+        "询问CE认证",
+        "询问交期"
+      ],
+      "objections": [],
+      "nextAction": "human_takeover",
+      "suggestedReply": "Hi,\n\nThanks for your interest in our routers and networking equipment.\n\nHappy to help with all three points:\n- MOQ: we can share tiered MOQs based on model and order volume.\n- Certification: our units carry CE (and other relevant certifications depending on model).\n- Lead time: stock items ship quickly; exact timing depends on quantity and destination.\n\nCould you let me know which models and approximate quantities you're considering, plus your delivery location? I'll then send a full quote with pricing, MOQ, certification documents and lead time.\n\nBest regards",
+      "reasoning": "客户明确询问MOQ、CE认证与交期，属具体采购条件，需人工接管。"
+    }
+  ],
+  "medium": [],
+  "unsubscribe": [
+    {
+      "companyName": "Comms Express",
+      "replyText": "Not interested at this time, please remove me from your list.",
+      "intent": "unsubscribe",
+      "confidence": 0.98,
+      "signals": [
+        "要求退订",
+        "要求从名单移除"
+      ],
+      "objections": [],
+      "nextAction": "stop",
+      "suggestedReply": "Understood — we've removed you from our list and you won't receive further messages from us. Apologies for the interruption, and best of luck with your business.",
+      "reasoning": "客户明确要求从名单中移除，属于退订，须立即停止联系并加入抑制名单。"
+    }
+  ],
+  "others": [
+    {
+      "companyName": "Network Warehouse",
+      "replyText": "Thanks but we already work with several router brands. We'll keep your details for the future.",
+      "intent": "low",
+      "confidence": 0.85,
+      "signals": [
+        "已有供应商",
+        "保留资料以备将来"
+      ],
+      "objections": [
+        "已有多个路由器品牌供应商"
+      ],
+      "nextAction": "nurture",
+      "suggestedReply": "Thank you for your reply and for keeping our details on file. We understand you already work with several router brands. If it is ever useful, we are a manufacturer with stock available across wifi routers, 4G/5G routers and network switches, and we are happy to share our catalogue or pricing whenever you are reviewing new options. No pressure at all — we will stay in touch occasionally. Wishing you a good week ahead.",
+      "reasoning": "客户礼貌婉拒并仅表示未来可能联系，无具体采购条件，属长期培育对象。"
+    },
+    {
+      "companyName": "Adept Networks",
+      "replyText": "Thanks for the email. We're currently evaluating suppliers, will be in touch if anything comes up.",
+      "intent": "low",
+      "confidence": 0.85,
+      "signals": [
+        "evaluating suppliers",
+        "no specific requirements",
+        "passive deferral"
+      ],
+      "objections": [],
+      "nextAction": "nurture",
+      "suggestedReply": "Thank you for your reply. Understood that you are currently evaluating suppliers. We manufacture wifi routers, 4G/5G routers and network switches with stock available, so if a project comes up we would be glad to share specifications, pricing or samples. I will keep you updated occasionally with relevant product news. Feel free to reach out anytime.",
+      "reasoning": "Customer is evaluating suppliers but states no current need or specific purchasing conditions, indicating low intent requiring long-term nurturing."
+    },
+    {
+      "companyName": "Westcoast UK",
+      "replyText": "I'm out of office until next week, I'll get back to you then. (auto-reply)",
+      "intent": "auto_reply",
+      "confidence": 0.97,
+      "signals": [
+        "自动回复",
+        "离职/不在办公室"
+      ],
+      "objections": [],
+      "nextAction": "nurture",
+      "suggestedReply": "Thanks for the note — no rush at all. I'll follow up next week once you're back at your desk. In the meantime, here's a one-line overview: we manufacture wifi, 4G/5G routers and network switches with stock available. Happy to share a catalogue or pricing whenever it's useful.",
+      "reasoning": "邮件明确标注为自动回复（out of office），无实际采购意向，按规则归为 auto_reply 并采用低频培育。"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "runtime": {
+    "environment": "local",
+    "dryRun": true,
+    "defaultMaxLeads": 20,
+    "maxLeadsHardLimit": 200,
+    "maxRuntimeMinutes": 30,
+    "concurrency": 3
+  },
+  "llm": {
+    "provider": "openai-compatible",
+    "model": "deepseek-chat",
+    "baseUrl": "https://api.deepseek.com/v1",
+    "apiKeyEnv": "LLM_API_KEY",
+    "temperature": 0.2,
+    "maxTokensPerCall": 1500,
+    "timeoutMs": 60000,
+    "retry": { "maxAttempts": 3, "backoffMs": 1500, "retryOn": [429, 500, 502, 503, 504] },
+    "tokenBudgetPerRun": 200000,
+    "cacheEnabled": true,
+    "cachePath": "./logs/llm-cache.jsonl",
+    "notes": "provider 可换 deepseek/qwen 等 OpenAI 兼容端点，仅需改 baseUrl+model"
+  },
+  "search": {
+    "provider": "serpapi",
+    "apiKeyEnv": "SERP_API_KEY",
+    "resultsPerKeyword": 10,
+    "maxKeywords": 12,
+    "resultsPerRun": 100,
+    "rateLimit": { "requestsPerMinute": 20, "burst": 5 },
+    "retry": { "maxAttempts": 3, "backoffMs": 2000 },
+    "respectRobotsTxt": true,
+    "userAgent": "LeadGenBot/1.0 (+contact: your@company.com)"
+  },
+  "enrichment": {
+    "fetchCompanyPage": true,
+    "maxPageBytes": 500000,
+    "pageTimeoutMs": 15000,
+    "blockedDomainsFile": "./config/blocked_domains.txt"
+  },
+  "storage": {
+    "driver": "sqlite",
+    "sqlitePath": "./db/leads.db",
+    "exportCsvPath": "./logs/exports",
+    "exportJsonPath": "./logs/exports",
+    "remote": {
+      "notes": "二期接 CRM 时启用；凭据走环境变量，禁止写入本文件",
+      "crmProvider": null,
+      "crmBaseUrlEnv": "CRM_BASE_URL",
+      "crmTokenEnv": "CRM_TOKEN"
+    }
+  },
+  "observability": {
+    "logLevel": "info",
+    "logDir": "./logs",
+    "structuredLog": true,
+    "metricsFile": "./logs/metrics.jsonl",
+    "alertOnFailureEmailEnv": "ALERT_EMAIL"
+  },
+  "compliance": {
+    "region": "UK",
+    "gulFrameworks": ["UK_GDPR", "PECR"],
+    "lawfulBasis": "legitimate_interest",
+    "dataMinimization": true,
+    "storeRawHtml": false,
+    "retentionDays": 365,
+    "unsubscribeRequired": true,
+    "suppressionListPath": "./config/suppression.txt",
+    "linkedInAutomation": false,
+    "notes": "LinkedIn 自动化默认关闭（违反其 ToS 且封号风险高）；触达走 Email 且必须带退订"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "name": "路由器 / 网络硬件分销渠道 ICP",
+    "status": "active",
+    "updatedAt": "2026-09-19",
+    "owner": "growth-team",
+    "notes": "硬件路由器 / 网络设备 B2B 分销渠道获客。客户是 IT 分销商、网络设备批发商、电信设备零售商。"
+  },
+  "target": {
+    "countries": [],
+    "countryMatchMode": "lenient",
+    "industries": ["router", "networking", "network equipment", "wifi", "it hardware", "telecom equipment", "broadband"],
+    "buyerTypes": {
+      "accept": ["distributor", "wholesaler", "trade_supplier", "reseller", "retailer_with_trade"],
+      "partial": ["retailer", "brand_owner", "mobile_retailer"],
+      "reject": ["manufacturer", "competitor", "marketplace", "dropshipper", "consumer", "telecom_carrier"]
+    },
+    "companySize": {
+      "employees": {
+        "idealMin": 5,
+        "idealMax": 2000,
+        "acceptableMin": 2,
+        "acceptableMax": 10000
+      },
+      "revenueUsd": {
+        "idealMin": 200000,
+        "idealMax": 200000000,
+        "acceptableMin": 50000,
+        "acceptableMax": 1000000000
+      }
+    }
+  },
+  "buyingSignals": {
+    "positive": [
+      "router",
+      "networking",
+      "network equipment",
+      "wifi",
+      "wi-fi",
+      "broadband",
+      "it distributor",
+      "it distribution",
+      "wholesale",
+      "distributor",
+      "reseller",
+      "value added reseller",
+      "var",
+      "stockist",
+      "trade account",
+      "trade supplier",
+      "b2b",
+      "bulk",
+      "msp",
+      "managed service provider",
+      "system integrator"
+    ],
+    "negative": [
+      "manufacturer",
+      "factory",
+      "oem",
+      "retail only",
+      "consumer only"
+    ]
+  },
+  "contactRequirements": {
+    "requiredAny": ["email", "contactForm", "phone"],
+    "preferBusinessEmail": true,
+    "blockFreeEmailDomains": []
+  },
+  "outreach": {
+    "enabled": false,
+    "channels": ["email"],
+    "dailySendCap": 30,
+    "requireHumanApproval": true,
+    "region": "global"
+  }
+}

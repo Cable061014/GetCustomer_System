@@ -1,0 +1,690 @@
+{
+  "name": "AI Lead Gen · 主流程（筛选 + 开发信）",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "Manual_Trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "country",
+              "value": "United Kingdom",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "industry",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "maxLeads",
+              "value": 20,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "Set_____",
+      "name": "Set 输入参数",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $json;\nconst taskPrompt = \"```json\\n{\\n  \\\"country\\\": \\\"United Kingdom\\\",\\n  \\\"industry\\\": \\\"esim\\\",\\n  \\\"buyerTypes\\\": [\\\"distributor\\\", \\\"wholesaler\\\", \\\"reseller\\\", \\\"travel_agency\\\", \\\"ota\\\"],\\n  \\\"excludeTypes\\\": [\\\"manufacturer\\\", \\\"marketplace\\\", \\\"telecom_carrier\\\"],\\n  \\\"maxKeywords\\\": 12\\n}\\n```\\n\\n生成 `{{maxKeywords}}` 条以内的英文搜索关键词，用于在 Google 上找出**目标国家/市场的潜在渠道客户**的官网（经销商、分销商、旅行社、平台、零售商等，取决于 `buyerTypes`）。\\n\\n1. 每条关键词 = **地域限定 + 客户类型 + 行业词** 的组合（如 `UK esim distributor`、`esim travel agency partner`）。\\n2. 覆盖 `buyerTypes` 里不同的客户类型，并扩展行业同义词（如 `esim` / `e-sim` / `travel sim` / `data roaming`）。\\n3. 可包含合作意图词：`reseller`、`white label`、`partner program`、`wholesale`、`become a partner`。\\n4. **不要**生成会命中 `excludeTypes` 的词（如电信运营商、制造商、电商平台）。\\n5. 优先使用目标市场的本地表达习惯；不使用中文。\\n6. 不重复、不堆砌。\\n\\n```json\\n{\\n  \\\"keywords\\\": [\\\"...\\\", \\\"...\\\"],\\n  \\\"rationale\\\": \\\"一句话说明这批关键词的覆盖策略\\\"\\n}\\n```\\n\\n```json\\n{\\n  \\\"keywords\\\": [\\n    \\\"esim reseller program\\\",\\n    \\\"travel esim white label partner\\\",\\n    \\\"esim distributor wholesale\\\",\\n    \\\"esim travel agency partner\\\",\\n    \\\"esim for travel agents\\\",\\n    \\\"become an esim partner\\\",\\n    \\\"esim affiliate program\\\",\\n    \\\"esim b2b partnership\\\"\\n  ],\\n  \\\"rationale\\\": \\\"覆盖 reseller/wholesale/agency/affiliate 四类渠道角色，并扩展 white label/partner program 等合作意图词\\\"\\n}\\n```\";\nconst systemPrompt = \"你是 **AI 客户策略员**，一名有 10 年经验的 B2B 跨境出海获客专家，服务于一家中国出口企业。\\n\\n1. **只做三件事**：生成搜索关键词、从公开网页提取结构化客户信息、判断客户意向。\\n2. **不做决策的最终拍板**：评分由确定性算法完成，你只提供事实字段；是否联系由人决定。\\n3. **不编造**：所有输出必须能追溯到给定文本。字段缺失时填空值（`null` 或 `\\\"unknown\\\"`），严禁猜测填充。\\n\\n- **严格 JSON**：输出为单个 JSON 对象，不加 markdown 代码围栏，不加解释性文字。\\n- **字段封闭**：只能使用任务提示词中定义的字段与枚举值，不得新增字段。\\n- **证据优先**：每个判定字段尽量附 `evidence`（原文片段，≤120 字）。无证据则留空。\\n- **语言**：字段值用英文；`evidence` 保留原文语言；不要输出中文到 JSON 值里（除公司名本身）。\\n- **拒绝率优先于召回率**：拿不准时倾向保守判定（如 `industryMatch: \\\"unknown\\\"`），宁可漏掉也不误报。\\n- **合规**：只处理公开可见的商业信息，不推断个人隐私（如个人手机号、私人邮箱、健康/宗教/政治倾向）。\\n\\n- 若无法完成任务（如输入为空），返回 `{\\\"error\\\": \\\"<原因>\\\"}`。\\n- 不要在 JSON 前后添加任何字符（包括 `\\\\`\\\\`\\\\`json`）。\";\nconst userPayload = {\n  country: p.country,\n  industry: p.industry,\n  buyerTypes: [\"distributor\",\"wholesaler\",\"importer\",\"trade_supplier\",\"retailer_with_trade\"],\n  excludeTypes: [\"manufacturer\",\"competitor\",\"marketplace\",\"dropshipper\",\"consumer\",\"unknown_large_platform\"],\n  maxKeywords: 12\n};\nreturn [{ json: { llmUrl: \"https://api.deepseek.com/v1/chat/completions\", model: \"deepseek-chat\", temperature: 0.2, maxTokens: 1500, messages: [ { role: 'system', content: systemPrompt }, { role: 'user', content: taskPrompt + '\\n\\n输入:\\n' + JSON.stringify(userPayload) } ] } }];"
+      },
+      "id": "Code_________",
+      "name": "Code 构建关键词提示词",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.llmUrl }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.LLM_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.model, temperature: $json.temperature, max_tokens: $json.maxTokens, response_format: { type: \"json_object\" }, messages: $json.messages }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "HTTP_LLM______",
+      "name": "HTTP LLM 生成关键词",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        300
+      ],
+      "notes": "",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.choices?.[0]?.message?.content ?? '{}';\nlet parsed = {};\ntry { parsed = JSON.parse(raw); } catch (e) { parsed = { keywords: [], rationale: 'parse_error' }; }\nconst keywords = (parsed.keywords || []).slice(0, 12);\nif (keywords.length === 0) { throw new Error('关键词生成失败：' + raw.slice(0, 200)); }\nreturn keywords.map((kw, i) => ({ json: { keywordIndex: i, keyword: kw, country: $('Set 输入参数').first().json.country } }));"
+      },
+      "id": "Code______",
+      "name": "Code 解析关键词",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://serpapi.com/search.json",
+        "authentication": "none",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.keyword }}"
+            },
+            {
+              "name": "num",
+              "value": "10"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $env.SERP_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "HTTP_____",
+      "name": "HTTP 搜索公司",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ],
+      "notes": "",
+      "retryOnFail": true,
+      "maxTries": 4,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 展平搜索结果 -> 候选公司，并按域名去重\nconst seen = new Set();\nconst out = [];\nfor (const item of $input.all()) {\n  const results = item.json.organic_results || [];\n  for (const r of results) {\n    const link = r.link || '';\n    const domain = link.replace(/^https?:\\/\\//, '').replace(/^www\\./, '').split('/')[0].toLowerCase();\n    if (!domain || seen.has(domain)) continue;\n    seen.add(domain);\n    out.push({ json: { name: r.title || domain, domain, sourceUrl: link, snippet: r.snippet || '' } });\n  }\n}\n// 真正读取用户填的 maxLeads（缺省回退到硬上限）\nconst wanted = Number($('Set 输入参数').first().json.maxLeads) || 20;\nconst cap = Math.min(wanted, 200);\nreturn out.slice(0, cap);"
+      },
+      "id": "Code______",
+      "name": "Code 归一化候选",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $json.domain }}",
+        "authentication": "none",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 3
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "LeadGenBot/1.0 (+contact: your@company.com)"
+            }
+          ]
+        }
+      },
+      "id": "HTTP______",
+      "name": "HTTP 抓取公司页",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1340,
+        300
+      ],
+      "notes": "",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const stripHtml = (html) => String(html || '')\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n  .replace(/<[^>]+>/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim()\n  .slice(0, 50000);\nconst taskPrompt = \"```json\\n{\\n  \\\"companyName\\\": \\\"Northwind Outdoor Trading Ltd\\\",\\n  \\\"domain\\\": \\\"northwind-outdoor.co.uk\\\",\\n  \\\"country\\\": \\\"United Kingdom\\\",\\n  \\\"industry\\\": \\\"outdoor furniture\\\",\\n  \\\"pageText\\\": \\\"<官网首页/关于页的纯文本，已去除 HTML>\\\"\\n}\\n```\\n\\n只依据 `pageText` 的内容，输出下列**固定字段**的判定结果。\\n\\n| 字段 | 类型 | 取值 | 判定标准 |\\n|---|---|---|---|\\n| `industryMatch` | enum | `exact` / `adjacent` / `broad` / `none` / `unknown` | 与目标行业的关系：完全对口 / 上下游相邻 / 泛相关 / 无关 / 无法判断 |\\n| `buyerType` | enum | 见下方「buyerType 枚举表」 | 该公司的业务身份（从枚举表里选最贴切的一个） |\\n| `employees` | number\\\\|null | 正整数 | 仅当页面明确写出时填；估算值一律填 `null` |\\n| `revenueUsd` | number\\\\|null | 正整数 | 仅当明确写出营收时填，否则 `null` |\\n| `sizeSignal` | enum | `large` / `medium` / `small` / `unknown` | **规模代理信号**（见下方判定口径；这是评规模的主要依据，比猜员工数可靠） |\\n| `importCapability` | boolean | true/false | 是否具备进口/国际采购能力（如提及 importer、自行进口、FOB、container） |\\n| `signalsText` | string | ≤400 字 | 摘录能证明采购意图的原文片段（拼成一段） |\\n| `email` | string\\\\|null | 有效邮箱 | 优先企业邮箱；无则 `null`。注意从「contact us」「get in touch」等区域提取，勿只看字面 `@` |\\n| `phone` | string\\\\|null | 电话 | 无则 `null` |\\n| `contactForm` | string\\\\|boolean | 表单 URL 或 `true` | 有明确 URL 填 URL；检测到「联系表单入口」但拿不到 URL 时填 `true`；完全没有则 `null` |\\n| `websiteQuality` | number | 0–1 | 官网专业度：产品线完整度、更新频率、是否有 B2B/批发入口 |\\n| `evidence` | object | 字段→原文片段 | 关键判定的原文出处（≤120 字/条） |\\n\\n**贸易/零售类（B2B 卖货）**\\n- `distributor` 经销商 ｜ `wholesaler` 批发商 ｜ `importer` 进口商 ｜ `trade_supplier` 贸易供货商 ｜ `retailer_with_trade` 带批发的零售商 ｜ `retailer` 零售商 ｜ `brand_owner` 品牌方\\n\\n**渠道/旅行/数码类（eSIM、科技、服务类产品的渠道）**\\n- `reseller` 分销/转售商 ｜ `travel_agency` 旅行社 ｜ `ota` 在线旅游平台 ｜ `hotel` 酒店/住宿 ｜ `content_creator` 博主/创作者 ｜ `mobile_retailer` 数码/手机零售商\\n\\n**应排除类**\\n- `manufacturer` 制造商 ｜ `competitor` 同行竞品 ｜ `marketplace` 电商平台 ｜ `dropshipper` 代发货 ｜ `consumer` 纯消费者 ｜ `telecom_carrier` 电信运营商 ｜ `unknown` 无法判断\\n\\n**不要猜员工数**——绝大多数官网不写。改判下列可观察信号：\\n\\n- `large`：全国/多国连锁、多个仓储/物流中心、成规模的经销商网络、知名大品牌\\n- `medium`：单一但业务完整，有批发/B2B 入口、产品线较全、明显稳定经营\\n- `small`：单一页面/独立小店、产品线窄、无批发入口、疑似个体经营\\n- `unknown`：信息不足，无法判断（宁可 unknown 不误判）\\n\\n- `0.8–1.0`：有独立批发/B2B 入口、产品线完整、明显近年维护\\n- `0.5–0.79`：常规企业站，信息较全\\n- `0.2–0.49`：模板站或信息稀疏\\n- `0.0–0.19`：疑似空壳/停更/仅有占位页\\n\\n```json\\n{\\n  \\\"industryMatch\\\": \\\"exact\\\",\\n  \\\"buyerType\\\": \\\"distributor\\\",\\n  \\\"employees\\\": null,\\n  \\\"revenueUsd\\\": null,\\n  \\\"sizeSignal\\\": \\\"medium\\\",\\n  \\\"importCapability\\\": true,\\n  \\\"signalsText\\\": \\\"We import and distribute outdoor furniture to trade customers across the UK.\\\",\\n  \\\"email\\\": \\\"sales@example.co.uk\\\",\\n  \\\"phone\\\": \\\"+44 20 7946 0000\\\",\\n  \\\"contactForm\\\": \\\"https://example.co.uk/contact\\\",\\n  \\\"websiteQuality\\\": 0.82,\\n  \\\"evidence\\\": {\\n    \\\"buyerType\\\": \\\"leading importer and distributor of outdoor furniture\\\",\\n    \\\"importCapability\\\": \\\"container loads and FOB terms available\\\"\\n  }\\n}\\n```\\n\\n- **宁缺勿猜**：未明确写出的数字一律 `null`，不要用常识补全。\\n- `pageText` 为空或为错误页 → 全部字段取 `unknown`/`null`，`websiteQuality: 0`。\\n- 只输出 JSON，无任何额外文字。\";\nconst systemPrompt = \"你是 **AI 客户策略员**，一名有 10 年经验的 B2B 跨境出海获客专家，服务于一家中国出口企业。\\n\\n1. **只做三件事**：生成搜索关键词、从公开网页提取结构化客户信息、判断客户意向。\\n2. **不做决策的最终拍板**：评分由确定性算法完成，你只提供事实字段；是否联系由人决定。\\n3. **不编造**：所有输出必须能追溯到给定文本。字段缺失时填空值（`null` 或 `\\\"unknown\\\"`），严禁猜测填充。\\n\\n- **严格 JSON**：输出为单个 JSON 对象，不加 markdown 代码围栏，不加解释性文字。\\n- **字段封闭**：只能使用任务提示词中定义的字段与枚举值，不得新增字段。\\n- **证据优先**：每个判定字段尽量附 `evidence`（原文片段，≤120 字）。无证据则留空。\\n- **语言**：字段值用英文；`evidence` 保留原文语言；不要输出中文到 JSON 值里（除公司名本身）。\\n- **拒绝率优先于召回率**：拿不准时倾向保守判定（如 `industryMatch: \\\"unknown\\\"`），宁可漏掉也不误报。\\n- **合规**：只处理公开可见的商业信息，不推断个人隐私（如个人手机号、私人邮箱、健康/宗教/政治倾向）。\\n\\n- 若无法完成任务（如输入为空），返回 `{\\\"error\\\": \\\"<原因>\\\"}`。\\n- 不要在 JSON 前后添加任何字符（包括 `\\\\`\\\\`\\\\`json`）。\";\n// 公司元数据从「归一化候选」按索引取回（HTTP 节点丢失了 name/domain，靠索引对齐）\nconst candidates = $('Code 归一化候选').all();\nconst inputParams = $('Set 输入参数').first().json;\nconst out = [];\nconst responses = $input.all();\nfor (let i = 0; i < responses.length; i++) {\n  const meta = (candidates[i] && candidates[i].json) || {};\n  const resp = responses[i].json;\n  // n8n HTTP 节点 responseFormat=text 时，正文在 data 或 body 字段\n  const pageText = stripHtml(resp.data ?? resp.body ?? resp.text ?? resp.response ?? '');\n  const userPayload = { companyName: meta.name, domain: meta.domain, country: inputParams.country, industry: inputParams.industry, pageText };\n  out.push({ json: {\n    domain: meta.domain, name: meta.name, sourceUrl: meta.sourceUrl,\n    country: inputParams.country, industry: inputParams.industry,\n    llmUrl: \"https://api.deepseek.com/v1/chat/completions\", model: \"deepseek-chat\", temperature: 0.2, maxTokens: 1500,\n    messages: [ { role: 'system', content: systemPrompt }, { role: 'user', content: taskPrompt + '\\n\\n输入:\\n' + JSON.stringify(userPayload) } ]\n  } });\n}\nreturn out;"
+      },
+      "id": "Code___________",
+      "name": "Code 提正文并建分析提示词",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.llmUrl }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.LLM_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.model, temperature: $json.temperature, max_tokens: $json.maxTokens, response_format: { type: \"json_object\" }, messages: $json.messages }) }}",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "HTTP_LLM_____",
+      "name": "HTTP LLM 分析公司",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        300
+      ],
+      "notes": "",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== 内联评分引擎（由 scripts/build_workflow.js 生成，真源 scripts/scoring.core.js，请勿手改） =====\n/**\n * scoring.core.js — 评分引擎纯核心（无 I/O、无 CLI）\n *\n * 这是全项目唯一的评分真源。两个消费方：\n *   1. Node CLI      -> scripts/scoring.js 通过 require 引用\n *   2. n8n Code 节点 -> scripts/build_workflow.js 把本文件源码内联进工作流\n * 因此本文件禁止出现 require / fs / process 等运行时依赖，保持纯函数。\n */\n\n'use strict';\n\nconst clamp = (n, min, max) => Math.min(max, Math.max(min, n));\n\nfunction round(n, digits = 2) {\n  const f = Math.pow(10, digits);\n  return Math.round(n * f) / f;\n}\n\nfunction isFreeEmail(email, icp) {\n  if (!email || typeof email !== 'string') return false;\n  const domain = email.split('@')[1];\n  if (!domain) return false;\n  const block = (icp.contactRequirements && icp.contactRequirements.blockFreeEmailDomains) || [];\n  return block.map((d) => d.toLowerCase()).includes(domain.toLowerCase());\n}\n\nfunction countSignals(text, terms) {\n  if (!text || typeof text !== 'string') return 0;\n  const lower = text.toLowerCase();\n  return terms.reduce((acc, term) => (lower.includes(String(term).toLowerCase()) ? acc + 1 : acc), 0);\n}\n\nfunction ruleEnum(rule, lead) {\n  const value = lead[rule.field];\n  const scores = rule.scores || {};\n  const raw = Object.prototype.hasOwnProperty.call(scores, value) ? scores[value] : (scores.unknown || 0);\n  return { raw: clamp(raw, 0, 1), reason: `${rule.field}=${value == null ? 'null' : value}` };\n}\n\nfunction ruleIcpEnum(rule, lead, icp) {\n  const value = lead[rule.field];\n  const bt = icp.target.buyerTypes;\n  let raw = 0.2;\n  let tag = '未识别';\n  if (bt.accept.includes(value)) { raw = rule.accept; tag = '符合'; }\n  else if (bt.partial.includes(value)) { raw = rule.partial; tag = '部分符合'; }\n  else if (bt.reject.includes(value)) { raw = rule.reject; tag = '排除'; }\n  return { raw, reason: `${rule.field}=${value == null ? 'null' : value}（${tag}）` };\n}\n\nfunction ruleRange(rule, lead, icp) {\n  let value = lead[rule.field];\n  let usedField = rule.field;\n  if ((value == null || value === '') && rule.fallbackField) {\n    value = lead[rule.fallbackField];\n    usedField = rule.fallbackField;\n  }\n  if (value == null || value === '' || Number.isNaN(Number(value))) {\n    return { raw: rule.unknown, reason: `${usedField} 未知，取保守值` };\n  }\n  const sizeConf = icp.target.companySize || {};\n  const bounds = sizeConf[usedField === 'employees' ? 'employees' : 'revenueUsd'];\n  if (!bounds) return { raw: rule.unknown, reason: `${usedField} 无区间配置` };\n  const v = Number(value);\n  const inIdeal = (bounds.idealMin == null || v >= bounds.idealMin) && (bounds.idealMax == null || v <= bounds.idealMax);\n  const inAcceptable =\n    (bounds.acceptableMin == null || v >= bounds.acceptableMin) &&\n    (bounds.acceptableMax == null || v <= bounds.acceptableMax);\n  if (inIdeal) return { raw: rule.ideal, reason: `${usedField}=${v} 落在理想区间` };\n  if (inAcceptable) return { raw: rule.acceptable, reason: `${usedField}=${v} 落在可接受区间` };\n  return { raw: rule.outside, reason: `${usedField}=${v} 超出可接受区间` };\n}\n\nfunction ruleSignalCount(rule, lead, icp) {\n  const text = lead[rule.textField] || '';\n  const pos = countSignals(text, (icp.buyingSignals && icp.buyingSignals.positive) || []);\n  const neg = countSignals(text, (icp.buyingSignals && icp.buyingSignals.negative) || []);\n  const base = lead[rule.boolField] ? rule.boolBonus : 0;\n  const gained = Math.min(rule.maxSignals, pos) * rule.perSignal;\n  const score = clamp(base + gained - neg * rule.negativePenalty, 0, 1);\n  return {\n    raw: score,\n    reason: `进口能力=${lead[rule.boolField] ? '是' : '否'}; 采购信号命中 ${pos} 条; 负面信号 ${neg} 条`,\n  };\n}\n\nfunction rulePresenceWeighted(rule, lead, icp) {\n  const w = rule.weights;\n  const hits = [];\n  let best = 0;\n  if (lead.email) {\n    if (isFreeEmail(lead.email, icp)) { best = Math.max(best, w.freeEmail); hits.push(`免费邮箱(${round(w.freeEmail, 2)})`); }\n    else { best = Math.max(best, w.businessEmail); hits.push(`企业邮箱(${round(w.businessEmail, 2)})`); }\n  }\n  if (lead.contactForm) {\n    // contactForm 可为 URL 字符串或布尔 true（检测到表单入口但无 URL）\n    const cf = lead.contactForm === true ? w.contactForm : w.contactForm;\n    best = Math.max(best, cf); hits.push(`联系表单(${round(w.contactForm, 2)})`);\n  }\n  if (lead.phone) { best = Math.max(best, w.phone); hits.push(`电话(${round(w.phone, 2)})`); }\n  return { raw: clamp(best, 0, 1), reason: hits.length ? hits.join(' + ') : '无任何联系方式' };\n}\n\nfunction ruleScale(rule, lead) {\n  const v = lead[rule.field];\n  if (v == null || v === '' || Number.isNaN(Number(v))) {\n    return { raw: rule.unknown, reason: `${rule.field} 未知，取保守值` };\n  }\n  return { raw: clamp(Number(v), 0, 1), reason: `${rule.field}=${round(Number(v), 2)}` };\n}\n\nconst RULE_IMPL = {\n  enum: ruleEnum,\n  icpEnum: ruleIcpEnum,\n  range: ruleRange,\n  signalCount: ruleSignalCount,\n  presenceWeighted: rulePresenceWeighted,\n  scale: ruleScale,\n};\n\nfunction runHardFilters(lead, dimBreakdown, icp, weights) {\n  const hits = [];\n  const contactability = dimBreakdown.find((d) => d.key === 'contactability');\n  for (const f of weights.hardFilters || []) {\n    if (f.op === 'countryNotInIcp') {\n      const mode = icp.target.countryMatchMode || 'strict';\n      const list = icp.target.countries || [];\n      if (mode === 'strict' && list.length > 0 && !list.includes(lead.country)) hits.push(f);\n    } else if (f.op === 'buyerTypeInRejectList') {\n      if ((icp.target.buyerTypes.reject || []).includes(lead.buyerType)) hits.push(f);\n    } else if (f.op === 'contactabilityZero') {\n      if (contactability && contactability.raw === 0) hits.push(f);\n    }\n  }\n  return hits;\n}\nfunction scoreLead(lead, icp, weights, options) {\n  const opts = options || {};\n  const dimensions = weights.dimensions || [];\n  const weightSum = dimensions.reduce((a, d) => a + (d.weight || 0), 0);\n  const scale = weights.totalScale || 100;\n\n  const breakdown = [];\n  const reasons = [];\n\n  for (const dim of dimensions) {\n    const impl = RULE_IMPL[dim.rule && dim.rule.type];\n    if (!impl) {\n      breakdown.push({ key: dim.key, label: dim.label, weight: dim.weight, raw: 0, points: 0, reason: `未知规则类型 ${dim.rule && dim.rule.type}` });\n      continue;\n    }\n    const r = impl(dim.rule, lead, icp);\n    const normalizedWeight = (dim.weight / weightSum) * scale;\n    const points = round(r.raw * normalizedWeight, 2);\n    breakdown.push({ key: dim.key, label: dim.label, weight: dim.weight, raw: round(r.raw, 3), points, reason: r.reason });\n    reasons.push(`${dim.label}: ${r.reason} → ${points}分`);\n  }\n\n  const total = round(breakdown.reduce((a, b) => a + b.points, 0), 2);\n  const filtered = runHardFilters(lead, breakdown, icp, weights);\n\n  let tier = 'low';\n  if (filtered.length === 0) {\n    if (total >= weights.tiers.high) tier = 'high';\n    else if (total >= weights.tiers.medium) tier = 'medium';\n  } else {\n    tier = 'filtered';\n  }\n\n  const riskFlags = (weights.riskFlags || [])\n    .filter((rf) => {\n      if (rf.key === 'free_email_only') return !!lead.email && isFreeEmail(lead.email, icp);\n      if (rf.key === 'size_unknown') {\n        return (lead.sizeSignal == null || lead.sizeSignal === '' || lead.sizeSignal === 'unknown');\n      }\n      return false;\n    })\n    .map((rf) => ({ key: rf.key, reason: rf.reason }));\n\n  return {\n    id: lead.id || null,\n    name: lead.name || null,\n    domain: lead.domain || null,\n    country: lead.country || null,\n    buyerType: lead.buyerType || null,\n    score: total,\n    effectiveScore: filtered.length ? 0 : total,\n    tier,\n    filtered,\n    filteredReasons: filtered.map((f) => f.reason),\n    breakdown,\n    reasons,\n    riskFlags,\n    audit: {\n      configVersion: weights.version || 'unknown',\n      icpVersion: icp.version || 'unknown',\n      scoredAt: opts.scoredAt || new Date().toISOString(),\n      engine: 'scoring.core.js/1.0.0',\n    },\n  };\n}\n\n/* 双运行时导出守卫：Node 用 module.exports；n8n Code 节点内联时该块被跳过 */\nif (typeof module !== 'undefined' && module.exports) {\n  module.exports = { scoreLead, isFreeEmail, countSignals, clamp, round };\n}\n\n// ===== 以下为节点逻辑 =====\nconst ICP = {\"version\":\"1.0.0\",\"meta\":{\"name\":\"通用 B2B 经销商 / 批发商 ICP\",\"status\":\"draft\",\"updatedAt\":\"2026-09-18\",\"owner\":\"growth-team\",\"notes\":\"市场未确定前的通用画像。确定目标市场后复制为 icp.<market>.json 并锁定版本号，禁止直接改本文件。\"},\"target\":{\"countries\":[\"United Kingdom\"],\"countryMatchMode\":\"strict\",\"industries\":[],\"buyerTypes\":{\"accept\":[\"distributor\",\"wholesaler\",\"importer\",\"trade_supplier\",\"retailer_with_trade\"],\"partial\":[\"retailer\",\"brand_owner\"],\"reject\":[\"manufacturer\",\"competitor\",\"marketplace\",\"dropshipper\",\"consumer\",\"unknown_large_platform\"]},\"companySize\":{\"employees\":{\"idealMin\":10,\"idealMax\":500,\"acceptableMin\":5,\"acceptableMax\":2000},\"revenueUsd\":{\"idealMin\":1000000,\"idealMax\":50000000,\"acceptableMin\":300000,\"acceptableMax\":200000000}}},\"buyingSignals\":{\"positive\":[\"importer\",\"import\",\"distributor\",\"distribution\",\"wholesale\",\"trade account\",\"trade price\",\"trade customer\",\"become a stockist\",\"stockist\",\"minimum order\",\"moq\",\"container\",\"fob\",\"supplier enquiry\",\"we source\",\"sourcing\"],\"negative\":[\"retail only\",\"consumer only\",\"dropship\",\"dropshipping\",\"no trade accounts\"]},\"contactRequirements\":{\"requiredAny\":[\"email\",\"contactForm\",\"phone\"],\"preferBusinessEmail\":true,\"blockFreeEmailDomains\":[\"gmail.com\",\"yahoo.com\",\"hotmail.com\",\"outlook.com\"]},\"outreach\":{\"enabled\":false,\"channels\":[\"email\"],\"dailySendCap\":50,\"requireHumanApproval\":true,\"region\":\"UK\"}};\nconst WEIGHTS = {\"version\":\"1.1.0\",\"totalScale\":100,\"tiers\":{\"high\":75,\"medium\":50,\"note\":\">=high 高潜（进 CRM + 触发人工跟进）；medium~high 普通（观察）；<medium 淘汰\"},\"hardFilters\":[{\"key\":\"country_mismatch\",\"op\":\"countryNotInIcp\",\"reason\":\"国家不在目标市场清单内\"},{\"key\":\"buyer_type_rejected\",\"op\":\"buyerTypeInRejectList\",\"reason\":\"命中 ICP 排除的客户类型（制造商/竞品/平台/零售纯 C 端）\"},{\"key\":\"no_contact_route\",\"op\":\"contactabilityZero\",\"reason\":\"无任何可用联系方式（邮箱/表单/电话），无法触达\"}],\"dimensions\":[{\"key\":\"industryFit\",\"label\":\"行业匹配度\",\"weight\":25,\"rule\":{\"type\":\"enum\",\"field\":\"industryMatch\",\"scores\":{\"exact\":1,\"adjacent\":0.85,\"broad\":0.5,\"none\":0,\"unknown\":0.2},\"explain\":\"exact=完全对口; adjacent=上下游相邻; broad=泛相关; unknown=未能判定\"}},{\"key\":\"buyerTypeFit\",\"label\":\"客户类型匹配\",\"weight\":25,\"rule\":{\"type\":\"icpEnum\",\"field\":\"buyerType\",\"accept\":1,\"partial\":0.5,\"reject\":0,\"explain\":\"经销商/批发商/进口商=满分; 零售/品牌方=半分; 制造商/平台=淘汰\"}},{\"key\":\"sizeFit\",\"label\":\"规模匹配\",\"weight\":15,\"rule\":{\"type\":\"enum\",\"field\":\"sizeSignal\",\"scores\":{\"large\":1,\"medium\":0.75,\"small\":0.3,\"unknown\":0.4},\"explain\":\"用官网规模代理信号(sizeSignal)评规模; large=连锁/大品牌满分, medium=完整批发商, small=个体小店, unknown=保守值\"}},{\"key\":\"importCapability\",\"label\":\"进口 / 采购能力\",\"weight\":15,\"rule\":{\"type\":\"signalCount\",\"boolField\":\"importCapability\",\"textField\":\"signalsText\",\"boolBonus\":0.5,\"perSignal\":0.2,\"maxSignals\":4,\"negativePenalty\":0.3,\"explain\":\"AI 判定具备进口能力得基础分; 文本命中采购信号累加; 命中负面信号扣分\"}},{\"key\":\"contactability\",\"label\":\"可联系性\",\"weight\":10,\"rule\":{\"type\":\"presenceWeighted\",\"weights\":{\"businessEmail\":1,\"contactForm\":0.7,\"phone\":0.6,\"freeEmail\":0.3},\"explain\":\"企业邮箱权重最高; 表单/电话次之; 免费邮箱最低(不利于 B2B 触达)\"}},{\"key\":\"digitalMaturity\",\"label\":\"线上成熟度\",\"weight\":10,\"rule\":{\"type\":\"scale\",\"field\":\"websiteQuality\",\"unknown\":0.4,\"explain\":\"AI 对官网专业度/更新频率/产品线完整度打 0-1 分\"}}],\"riskFlags\":[{\"key\":\"free_email_only\",\"when\":\"contactability uses freeEmail and no businessEmail\",\"action\":\"flag\",\"reason\":\"仅有免费邮箱，真实性待验证\"},{\"key\":\"size_unknown\",\"when\":\"sizeSignal is null/unknown\",\"action\":\"flag\",\"reason\":\"规模信号缺失，建议人工核实\"}]};\nconst metaItems = $('Code 提正文并建分析提示词').all();\nconst inputParams = $('Set 输入参数').first().json;\nconst responses = $input.all();\nconst out = [];\nfor (let i = 0; i < responses.length; i++) {\n  const meta = (metaItems[i] && metaItems[i].json) || {};\n  const raw = responses[i].json.choices?.[0]?.message?.content;\n  let analysis = {};\n  try { analysis = JSON.parse(raw || '{}'); } catch (e) { analysis = {}; }\n  const lead = Object.assign({\n    id: 'lead_' + String(i + 1).padStart(4, '0'),\n    name: meta.name || null,\n    domain: meta.domain || null,\n    country: meta.country || inputParams.country || null,\n    industry: meta.industry || inputParams.industry || null,\n    sourceUrl: meta.sourceUrl || null,\n    extractedAt: new Date().toISOString(),\n  }, analysis);\n  const result = scoreLead(lead, ICP, WEIGHTS);\n  out.push({ json: Object.assign({}, lead, { scoring: result }) });\n}\nreturn out.sort((a, b) => b.json.scoring.effectiveScore - a.json.scoring.effectiveScore);"
+      },
+      "id": "Code______",
+      "name": "Code 解析并评分",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map((it) => it.json);\nconst summary = { total: items.length, high: 0, medium: 0, low: 0, filtered: 0 };\nfor (const it of items) { summary[it.scoring.tier] = (summary[it.scoring.tier] || 0) + 1; }\nconsole.log('[汇总] ' + JSON.stringify(summary));\n// 每行一条 item，交给 Convert to File 节点自动生成带表头的 CSV\nreturn items.map((it) => ({ json: {\n  tier: it.scoring.tier, effectiveScore: it.scoring.effectiveScore, score: it.scoring.score,\n  name: it.name || '', domain: it.domain || '', country: it.country || '', buyerType: it.buyerType || '',\n  riskFlags: (it.scoring.riskFlags || []).map((f) => f.key).join('|'),\n  topReason: (it.scoring.reasons || [])[0] || '',\n  email: it.email || '', phone: it.phone || '', contactForm: it.contactForm || '',\n  sourceUrl: it.sourceUrl || ''\n} }));"
+      },
+      "id": "Code___",
+      "name": "Code 汇总",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2220,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "options": {
+          "fileName": "leads_export.csv"
+        }
+      },
+      "id": "Convert_to_File___CSV",
+      "name": "Convert to File 导出CSV",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2440,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/data/exports/leads_{{ $now.toFormat(\"yyyyLLdd_HHmmss\") }}.csv",
+        "dataPropertyName": "data",
+        "options": {}
+      },
+      "id": "Read_Write_File___",
+      "name": "Read/Write File 落盘",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        2660,
+        300
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "jsCode": "// 从「Code 汇总」的扁平输出里筛出 high 层，准备开发信生成\nconst items = $input.all().map((it) => it.json);\nconst high = items.filter((it) => it.tier === 'high');\nif (high.length === 0) { return [{ json: { note: '无 high 客户', skip: true } }]; }\nreturn high.map((it, i) => ({ json: {\n  idx: i,\n  companyName: it.name || '',\n  buyerType: it.buyerType || 'unknown',\n  country: it.country || '',\n  signalsText: it.topReason || '',\n  contactEmail: it.email || '',\n  productBrief: \"travel eSIM data plans (global and regional coverage, instant QR activation, no physical SIM)\",\n  valueProps: [\"competitive wholesale pricing with healthy partner margins\",\"white-label and API integration options, plus instant digital delivery\"],\n  companyInfo: \"[[YOUR_COMPANY]]\",\n  cta: \"send our partner brochure and wholesale pricing\",\n} }));"
+      },
+      "id": "Code_______",
+      "name": "Code 提取高潜客户",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2440,
+        460
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $json;\nconst taskPrompt = \"```json\\n{\\n  \\\"companyName\\\": \\\"Northwind Outdoor Trading Ltd\\\",\\n  \\\"buyerType\\\": \\\"distributor\\\",\\n  \\\"country\\\": \\\"United Kingdom\\\",\\n  \\\"signalsText\\\": \\\"We are a leading UK importer and distributor of outdoor furniture.\\\",\\n  \\\"contactName\\\": null,\\n  \\\"contactEmail\\\": \\\"sales@northwind.co.uk\\\",\\n  \\\"productBrief\\\": \\\"[[PRODUCT_BRIEF]]\\\",\\n  \\\"valueProps\\\": [\\\"[[VALUE_PROP_1]]\\\", \\\"[[VALUE_PROP_2]]\\\"],\\n  \\\"companyInfo\\\": \\\"[[YOUR_COMPANY]]\\\",\\n  \\\"cta\\\": \\\"[[CALL_TO_ACTION]]\\\"\\n}\\n```\\n\\n写一封**第一封开发信**（cold outreach），目标客户是 `companyName`。\\n\\n1. **短**：正文 ≤120 词，3~4 段。B2B 采购负责人没耐心读长信。\\n2. **个性化**：必须引用 `signalsText` 里与客户相关的信息（证明你研究过它，不是群发）。没有 `signalsText` 就用 `buyerType` 做泛化切入。\\n3. **价值导向**：说清「对我方有什么好处」，不堆产品参数。\\n4. **单一 CTA**：只提一个明确的下一步（如「能否发你我们的目录 / 约 15 分钟通话」），不列一堆。\\n5. **合规**：\\n   - 语气专业、克制，禁止施压、夸大、虚假承诺。\\n   - 结尾附退订说明（\\\"If this isn't relevant, let me know and I won't contact you again.\\\"）。\\n   - 发件人身份真实（用 `companyInfo`，不得虚构）。\\n6. **语言**：英语（客户国家是英语系）。邮件主题、正文都出。\\n\\n```json\\n{\\n  \\\"subject\\\": \\\"一封 6~9 词的邮件主题，避免 spam 词\\\",\\n  \\\"body\\\": \\\"邮件正文纯文本，含称呼、正文、落款、退订说明\\\",\\n  \\\"salutation\\\": \\\"Dear <称呼> 或 Hi <称呼>，无联系人名时用 Dear team / Hello\\\",\\n  \\\"cta\\\": \\\"明确的一个行动号召\\\",\\n  \\\"tone\\\": \\\"professional | friendly | formal\\\",\\n  \\\"wordCount\\\": 0\\n}\\n```\\n\\n```json\\n{\\n  \\\"subject\\\": \\\"Outdoor furniture supply for Northwind's trade range\\\",\\n  \\\"body\\\": \\\"Hi team,\\\\n\\\\nI noticed Northwind is a leading UK importer and distributor of outdoor furniture. We manufacture [product] and work with distributors like yours across Europe.\\\\n\\\\nWe offer [value prop 1] and [value prop 2], with flexible MOQs and FOB/EXW terms.\\\\n\\\\nCould I send over our latest catalogue and wholesale pricing?\\\\n\\\\nBest regards,\\\\n[Your name]\\\\n[Company]\\\\n\\\\nIf this isn't relevant, just let me know and I won't follow up.\\\",\\n  \\\"salutation\\\": \\\"Hi team\\\",\\n  \\\"cta\\\": \\\"send catalogue and wholesale pricing\\\",\\n  \\\"tone\\\": \\\"professional\\\",\\n  \\\"wordCount\\\": 92\\n}\\n```\\n\\n- 只输出 JSON，无任何额外文字。\\n- 产品信息是占位符时，用 `[product]`、`[value prop]` 标注，**不编造具体产品**。\\n- 不承诺交货时间、价格、认证等未提供的具体信息。\";\nconst userPayload = { companyName: p.companyName, buyerType: p.buyerType, country: p.country, signalsText: p.signalsText, contactName: null, contactEmail: p.contactEmail, productBrief: p.productBrief, valueProps: p.valueProps, companyInfo: p.companyInfo, cta: p.cta };\nreturn [{ json: { domain: p.companyName, llmUrl: \"https://api.deepseek.com/v1/chat/completions\", model: \"deepseek-chat\", temperature: 0.2, maxTokens: 1500, messages: [ { role: 'system', content: 'You are an expert B2B sales copywriter. Output strict JSON only.' }, { role: 'user', content: taskPrompt + '\\n\\n输入:\\n' + JSON.stringify(userPayload) } ] } }];"
+      },
+      "id": "Code_________",
+      "name": "Code 构建开发信提示词",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2660,
+        460
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.llmUrl }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.LLM_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: $json.model, temperature: $json.temperature, max_tokens: $json.maxTokens, response_format: { type: \"json_object\" }, messages: $json.messages }) }}",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "HTTP_LLM______",
+      "name": "HTTP LLM 生成开发信",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2880,
+        460
+      ],
+      "notes": "",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const metaItems = $('Code 提取高潜客户').all();\nconst responses = $input.all();\nconst rows = [];\nfor (let i = 0; i < responses.length; i++) {\n  const meta = (metaItems[i] && metaItems[i].json) || {};\n  const raw = responses[i].json.choices?.[0]?.message?.content;\n  let email = {};\n  try { email = JSON.parse(raw || '{}'); } catch (e) { email = { error: 'parse_fail' }; }\n  rows.push({ json: {\n    companyName: meta.companyName, buyerType: meta.buyerType, contactEmail: meta.contactEmail,\n    subject: email.subject || '', body: email.body || '', salutation: email.salutation || '',\n    cta: email.cta || '', tone: email.tone || '',\n  } });\n}\nreturn rows;"
+      },
+      "id": "Code______",
+      "name": "Code 汇总开发信",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3100,
+        460
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "options": {
+          "fileName": "outreach_drafts.csv"
+        }
+      },
+      "id": "Convert_to_File______",
+      "name": "Convert to File 导出开发信",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        3320,
+        460
+      ],
+      "notes": ""
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "=/data/exports/outreach_{{ $now.toFormat(\"yyyyLLdd_HHmmss\") }}.csv",
+        "dataPropertyName": "data",
+        "options": {}
+      },
+      "id": "Read_Write_File_____",
+      "name": "Read/Write File 写开发信",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        3540,
+        460
+      ],
+      "notes": ""
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set 输入参数",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set 输入参数": {
+      "main": [
+        [
+          {
+            "node": "Code 构建关键词提示词",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 构建关键词提示词": {
+      "main": [
+        [
+          {
+            "node": "HTTP LLM 生成关键词",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP LLM 生成关键词": {
+      "main": [
+        [
+          {
+            "node": "Code 解析关键词",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 解析关键词": {
+      "main": [
+        [
+          {
+            "node": "HTTP 搜索公司",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 搜索公司": {
+      "main": [
+        [
+          {
+            "node": "Code 归一化候选",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 归一化候选": {
+      "main": [
+        [
+          {
+            "node": "HTTP 抓取公司页",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP 抓取公司页": {
+      "main": [
+        [
+          {
+            "node": "Code 提正文并建分析提示词",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 提正文并建分析提示词": {
+      "main": [
+        [
+          {
+            "node": "HTTP LLM 分析公司",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP LLM 分析公司": {
+      "main": [
+        [
+          {
+            "node": "Code 解析并评分",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 解析并评分": {
+      "main": [
+        [
+          {
+            "node": "Code 汇总",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 汇总": {
+      "main": [
+        [
+          {
+            "node": "Convert to File 导出CSV",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code 提取高潜客户",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File 导出CSV": {
+      "main": [
+        [
+          {
+            "node": "Read/Write File 落盘",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 提取高潜客户": {
+      "main": [
+        [
+          {
+            "node": "Code 构建开发信提示词",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 构建开发信提示词": {
+      "main": [
+        [
+          {
+            "node": "HTTP LLM 生成开发信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP LLM 生成开发信": {
+      "main": [
+        [
+          {
+            "node": "Code 汇总开发信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 汇总开发信": {
+      "main": [
+        [
+          {
+            "node": "Convert to File 导出开发信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File 导出开发信": {
+      "main": [
+        [
+          {
+            "node": "Read/Write File 写开发信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "v1",
+  "meta": {
+    "generatedBy": "scripts/build_workflow.js",
+    "generatedAt": "2026-09-18T16:00:28.056Z",
+    "configVersion": {
+      "icp": "1.0.0",
+      "weights": "1.1.0",
+      "settings": "1.0.0"
+    },
+    "note": "请勿手改本文件；改配置后重跑 build_workflow.js。"
+  },
+  "tags": [
+    {
+      "name": "lead-gen"
+    }
+  ]
+}

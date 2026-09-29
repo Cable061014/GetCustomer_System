@@ -1,0 +1,83 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "name": "eSIM 旅行分销渠道 ICP",
+    "status": "active",
+    "updatedAt": "2026-09-18",
+    "owner": "growth-team",
+    "notes": "eSIM / 旅行流量 B2B 渠道获客专用画像。客户是旅行产业链 + 数码分销渠道，不是电信运营商。"
+  },
+  "target": {
+    "countries": [],
+    "countryMatchMode": "lenient",
+    "industries": ["esim", "travel", "telecom", "mobile data", "sim", "travel tech", "mobile accessories"],
+    "buyerTypes": {
+      "accept": ["distributor", "wholesaler", "trade_supplier", "reseller", "retailer_with_trade"],
+      "partial": ["retailer", "travel_agency", "ota", "hotel", "content_creator", "brand_owner"],
+      "reject": ["manufacturer", "competitor", "marketplace", "dropshipper", "consumer", "telecom_carrier"]
+    },
+    "companySize": {
+      "employees": {
+        "idealMin": 3,
+        "idealMax": 2000,
+        "acceptableMin": 1,
+        "acceptableMax": 10000
+      },
+      "revenueUsd": {
+        "idealMin": 100000,
+        "idealMax": 200000000,
+        "acceptableMin": 50000,
+        "acceptableMax": 1000000000
+      }
+    }
+  },
+  "buyingSignals": {
+    "positive": [
+      "esim",
+      "e-sim",
+      "travel esim",
+      "data plan",
+      "roaming",
+      "travel data",
+      "sim card",
+      "connectivity",
+      "reseller",
+      "white label",
+      "whitelabel",
+      "partner program",
+      "affiliate",
+      "commission",
+      "travel agency",
+      "tour operator",
+      "ota",
+      "booking",
+      "travel tech",
+      "mobile accessories",
+      "retailer",
+      "wholesale",
+      "distribution",
+      "become a partner",
+      "partner with us"
+    ],
+    "negative": [
+      "telecom operator",
+      "mobile network operator",
+      "mno",
+      "we are a carrier",
+      "no partners",
+      "not accepting partners"
+    ]
+  },
+  "contactRequirements": {
+    "requiredAny": ["email", "contactForm", "phone"],
+    "preferBusinessEmail": true,
+    "blockFreeEmailDomains": []
+  },
+  "outreach": {
+    "enabled": false,
+    "channels": ["email"],
+    "dailySendCap": 30,
+    "requireHumanApproval": true,
+    "region": "global"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "version": "1.1.0",
+  "totalScale": 100,
+  "tiers": {
+    "high": 75,
+    "medium": 50,
+    "note": ">=high 高潜（进 CRM + 触发人工跟进）；medium~high 普通（观察）；<medium 淘汰"
+  },
+  "hardFilters": [
+    {
+      "key": "country_mismatch",
+      "op": "countryNotInIcp",
+      "reason": "国家不在目标市场清单内"
+    },
+    {
+      "key": "buyer_type_rejected",
+      "op": "buyerTypeInRejectList",
+      "reason": "命中 ICP 排除的客户类型（制造商/竞品/平台/零售纯 C 端）"
+    },
+    {
+      "key": "no_contact_route",
+      "op": "contactabilityZero",
+      "reason": "无任何可用联系方式（邮箱/表单/电话），无法触达"
+    }
+  ],
+  "dimensions": [
+    {
+      "key": "industryFit",
+      "label": "行业匹配度",
+      "weight": 25,
+      "rule": {
+        "type": "enum",
+        "field": "industryMatch",
+        "scores": { "exact": 1.0, "adjacent": 0.85, "broad": 0.5, "none": 0.0, "unknown": 0.2 },
+        "explain": "exact=完全对口; adjacent=上下游相邻; broad=泛相关; unknown=未能判定"
+      }
+    },
+    {
+      "key": "buyerTypeFit",
+      "label": "客户类型匹配",
+      "weight": 25,
+      "rule": {
+        "type": "icpEnum",
+        "field": "buyerType",
+        "accept": 1.0,
+        "partial": 0.5,
+        "reject": 0.0,
+        "explain": "经销商/批发商/进口商=满分; 零售/品牌方=半分; 制造商/平台=淘汰"
+      }
+    },
+    {
+      "key": "sizeFit",
+      "label": "规模匹配",
+      "weight": 15,
+      "rule": {
+        "type": "enum",
+        "field": "sizeSignal",
+        "scores": { "large": 1.0, "medium": 0.75, "small": 0.3, "unknown": 0.4 },
+        "explain": "用官网规模代理信号(sizeSignal)评规模; large=连锁/大品牌满分, medium=完整批发商, small=个体小店, unknown=保守值"
+      }
+    },
+    {
+      "key": "importCapability",
+      "label": "进口 / 采购能力",
+      "weight": 15,
+      "rule": {
+        "type": "signalCount",
+        "boolField": "importCapability",
+        "textField": "signalsText",
+        "boolBonus": 0.5,
+        "perSignal": 0.2,
+        "maxSignals": 4,
+        "negativePenalty": 0.3,
+        "explain": "AI 判定具备进口能力得基础分; 文本命中采购信号累加; 命中负面信号扣分"
+      }
+    },
+    {
+      "key": "contactability",
+      "label": "可联系性",
+      "weight": 10,
+      "rule": {
+        "type": "presenceWeighted",
+        "weights": { "businessEmail": 1.0, "contactForm": 0.7, "phone": 0.6, "freeEmail": 0.3 },
+        "explain": "企业邮箱权重最高; 表单/电话次之; 免费邮箱最低(不利于 B2B 触达)"
+      }
+    },
+    {
+      "key": "digitalMaturity",
+      "label": "线上成熟度",
+      "weight": 10,
+      "rule": {
+        "type": "scale",
+        "field": "websiteQuality",
+        "unknown": 0.4,
+        "explain": "AI 对官网专业度/更新频率/产品线完整度打 0-1 分"
+      }
+    }
+  ],
+  "riskFlags": [
+    {
+      "key": "free_email_only",
+      "when": "contactability uses freeEmail and no businessEmail",
+      "action": "flag",
+      "reason": "仅有免费邮箱，真实性待验证"
+    },
+    {
+      "key": "size_unknown",
+      "when": "sizeSignal is null/unknown",
+      "action": "flag",
+      "reason": "规模信号缺失，建议人工核实"
+    }
+  ]
+}
